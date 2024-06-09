@@ -1,6 +1,6 @@
-FROM python:3.8-slim-bullseye
+FROM python:3.10-slim-buster
 
-WORKDIR /app 
+WORKDIR /app
 
 COPY requirements.txt requirements.txt
 
