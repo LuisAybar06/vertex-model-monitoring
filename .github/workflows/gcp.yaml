@@ -8,6 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: cd-v1
+      PROJECT_ID: groovy-form-424500-f2 
     steps:
 
     - name: code checkout
@@ -20,10 +23,19 @@ jobs:
         service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         export_default_credentials: true
 
+    - name: Automatic Tagging of Releases
+      id: increment-git-tag
+      run: |
+        bash ./scripts/git_update.sh -v major
+
     - name: build and push the docker image
       env:
+        GIT_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
         GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
       run: |
         gcloud auth configure-docker us-central1-docker.pkg.dev
-        docker build -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/imagen:latest .
-        docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/imagen:latest
+        docker build -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/$IMAGE_NAME:latest .
+        docker tag $IMAGE_NAME:latest us-central1-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:latest
+        docker tag $IMAGE_NAME:latest us-central1-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:$GIT_TAG
+        docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/$IMAGE_NAME:latest
+        docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/$IMAGE_NAME:$GIT_TAG
