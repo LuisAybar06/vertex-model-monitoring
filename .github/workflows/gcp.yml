@@ -36,7 +36,7 @@
         - name: Push Docker Image to Artifact Registry
           env:
             GIT_TAG: v0.1.0
-          run: |-
+          run: |- 
             docker tag $IMAGE_NAME:latest us-central1-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:latest
             docker tag $IMAGE_NAME:latest us-central1-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:$GIT_TAG
             docker push us-central1-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:latest
