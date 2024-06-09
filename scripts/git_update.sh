@@ -2,7 +2,7 @@
 
 VERSION=""
 
-# get parameters
+# Obtener parámetros
 while getopts v: flag
 do
   case "${flag}" in
@@ -10,7 +10,7 @@ do
   esac
 done
 
-# get highest tag number, and add v1.1.0 if doesn't exist
+# Obtener la etiqueta más alta y agregar v1.1.0 si no existe
 git fetch --prune --unshallow 2>/dev/null
 CURRENT_VERSION=`git describe --abbrev=0 --tags 2>/dev/null`
 
@@ -20,20 +20,24 @@ then
 fi
 echo "Current Version: $CURRENT_VERSION"
 
-# replace . with space so can split into an array
+# Reemplazar . con espacio para poder dividir en un array
 CURRENT_VERSION_PARTS=(${CURRENT_VERSION//./ })
 
-# get number parts
-VNUM1=${CURRENT_VERSION_PARTS[0]}
+# Obtener las partes de la versión
+VNUM1=${CURRENT_VERSION_PARTS[0]//v}  # Eliminar 'v' al inicio de la versión mayor
 VNUM2=${CURRENT_VERSION_PARTS[1]}
 VNUM3=${CURRENT_VERSION_PARTS[2]}
 
+# Incrementar la versión según el tipo especificado
 if [[ $VERSION == 'major' ]]
 then
-  VNUM1=v$((VNUM1+1))
+  VNUM1=$((VNUM1+1))
+  VNUM2=0
+  VNUM3=0
 elif [[ $VERSION == 'minor' ]]
 then
   VNUM2=$((VNUM2+1))
+  VNUM3=0
 elif [[ $VERSION == 'patch' ]]
 then
   VNUM3=$((VNUM3+1))
@@ -42,15 +46,15 @@ else
   exit 1
 fi
 
-# create new tag
-NEW_TAG="$VNUM1.$VNUM2.$VNUM3"
+# Crear nueva etiqueta
+NEW_TAG="v$VNUM1.$VNUM2.$VNUM3"
 echo "($VERSION) updating $CURRENT_VERSION to $NEW_TAG"
 
-# get current hash and see if it already has a tag
+# Obtener el hash actual y verificar si ya tiene una etiqueta
 GIT_COMMIT=`git rev-parse HEAD`
 NEEDS_TAG=`git describe --contains $GIT_COMMIT 2>/dev/null`
 
-# only tag if no tag already
+# Solo etiquetar si no hay una etiqueta ya
 if [ -z "$NEEDS_TAG" ]; then
   echo "Tagged with $NEW_TAG"
   git tag $NEW_TAG
