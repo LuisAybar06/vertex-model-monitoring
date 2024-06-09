@@ -35,6 +35,6 @@ jobs:
       run: |
         gcloud auth configure-docker us-central1-docker.pkg.dev
         docker build -t us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/$IMAGE_NAME:latest .
-        docker tag $IMAGE_NAME:latest us-central1-docker.pkg.dev/$PROJECT_ID/images/$IMAGE_NAME:$GIT_TAG
+        docker tag us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/$IMAGE_NAME:latest us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/$IMAGE_NAME:$GIT_TAG
         docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/$IMAGE_NAME:latest
         docker push us-central1-docker.pkg.dev/$GOOGLE_PROJECT/images/$IMAGE_NAME:$GIT_TAG
