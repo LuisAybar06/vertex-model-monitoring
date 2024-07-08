@@ -1,4 +1,4 @@
-name: Deploy Prediction Pipeline
+name: Deploy Terraform and Execute Notebook
 
 on:
   push:
@@ -20,8 +20,9 @@ jobs:
           install_components: 'gke-gcloud-auth-plugin'
           export_default_credentials: true
 
+
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: '3.8'
 
@@ -30,8 +31,14 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
+          pip install jupyter
+
+      - name: Register Jupyter kernel
+        run: |
+          source venv/bin/activate
+          python -m ipykernel install --user --name=venv
 
       - name: Execute notebook
         run: |
           source venv/bin/activate
-          papermill my_app/pipeline_prediction_model_v1.ipynb my_app/output.ipynb
+          papermill my_app/pipeline_prediction_model_v1.ipynb my_app/output.ipynb -k venv
