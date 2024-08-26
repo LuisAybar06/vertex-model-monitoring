@@ -1,20 +1,20 @@
-# Usa una imagen base que tenga Python preinstalado
-FROM python:3.10-slim
+# Usa una imagen base oficial de Python
+FROM python:3.9
 
-# Establece el directorio de trabajo en el contenedor
+# Establece el directorio de trabajo en /app
 WORKDIR /app
 
-# Copia el archivo de requisitos al contenedor
+# Copia los archivos de requerimientos al contenedor de trabajo
 COPY requirements.txt .
 
 # Instala las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el código fuente y archivos necesarios al contenedor
+# Copia todo el contenido de la carpeta actual en el contenedor de trabajo
 COPY . .
 
-# Expone el puerto en el que Uvicorn servirá la aplicación
-EXPOSE 8000
+# Expone el puerto 80
+EXPOSE 80
 
 # Comando para ejecutar la aplicación
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app_1", "--host", "0.0.0.0", "--port", "80"]
