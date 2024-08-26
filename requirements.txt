@@ -5,18 +5,23 @@
 # MarkupSafe==2.0.1
 # Werkzeug==2.0.2
 
-PyYAML
-pytz
-fire
-yq
-nbconvert==6.4.5
-jupyter-client==7.2.0
-ipython
-packaging
+fastapi
+uvicorn
+pandas
+joblib
 
-google-cloud-aiplatform==1.18.0
-kfp==1.8.21
-google-cloud-pipeline-components==1.0.24
-google-cloud-storage
-google-auth
-papermill
+# PyYAML
+# pytz
+# fire
+# yq
+# nbconvert==6.4.5
+# jupyter-client==7.2.0
+# ipython
+# packaging
+
+# google-cloud-aiplatform==1.18.0
+# kfp==1.8.21
+# google-cloud-pipeline-components==1.0.24
+# google-cloud-storage
+# google-auth
+# papermill

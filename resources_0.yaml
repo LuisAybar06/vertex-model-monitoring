@@ -2,35 +2,35 @@
 apiVersion: "apps/v1"
 kind: "Deployment"
 metadata:
-  name: "fastapi-1"
+  name: "nginx-1"
   namespace: "default"
   labels:
-    app: "fastapi-1"
+    app: "nginx-1"
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: "fastapi-1"
+      app: "nginx-1"
   template:
     metadata:
       labels:
-        app: "fastapi-1"
+        app: "nginx-1"
     spec:
       containers:
-      - name: "fastapi-1"
-        image: "fastapi:latest"
+      - name: "nginx-1"
+        image: "nginx:latest"
 ---
 apiVersion: "autoscaling/v2"
 kind: "HorizontalPodAutoscaler"
 metadata:
-  name: "fastapi-1-hpa-ypna"
+  name: "nginx-1-hpa-ypna"
   namespace: "default"
   labels:
-    app: "fastapi-1"
+    app: "nginx-1"
 spec:
   scaleTargetRef:
     kind: "Deployment"
-    name: "fastapi-1"
+    name: "nginx-1"
     apiVersion: "apps/v1"
   minReplicas: 1
   maxReplicas: 5
@@ -45,15 +45,15 @@ spec:
 apiVersion: "v1"
 kind: "Service"
 metadata:
-  name: "fastapi-service"
+  name: "nginx-service"
   namespace: "default"
   labels:
-    app: "fastapi-1"
+    app: "nginx-1"
 spec:
   ports:
   - protocol: "TCP"
     port: 80
   selector:
-    app: "fastapi-1"
+    app: "nginx-1"
   type: "LoadBalancer"
   loadBalancerIP: ""
