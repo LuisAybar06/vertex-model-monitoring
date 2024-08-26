@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: "fastapi-1"
-        image: "fastapi:latest"
+        image: "us-central1-docker.pkg.dev/trim-odyssey-390415/images/fastapi:latest"
 ---
 apiVersion: "autoscaling/v2"
 kind: "HorizontalPodAutoscaler"
