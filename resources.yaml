@@ -1,29 +1,47 @@
-apiVersion: apps/v1
-kind: Deployment
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
 metadata:
-  name: nginx
+  name: "nginx-1"
+  namespace: "default"
   labels:
-    app: nginx
+    app: "nginx-1"
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
-      app: nginx
+      app: "nginx-1"
   template:
     metadata:
       labels:
-        app: nginx
+        app: "nginx-1"
     spec:
       containers:
-      - name: nginx
-        image: us-central1-docker.pkg.dev/trim-odyssey-390415/images/nginx:latest
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "250m"
-          limits:
-            memory: "256Mi"
-            cpu: "500m"
+      - name: "nginx-1"
+        image: "us-central1-docker.pkg.dev/trim-odyssey-390415/images/nginx:latest"
+---
+apiVersion: "autoscaling/v2"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "nginx-1-hpa-ypna"
+  namespace: "default"
+  labels:
+    app: "nginx-1"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "nginx-1"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      target:
+        type: "Utilization"
+        averageUtilization: 80
+
 
 ---
 apiVersion: "v1"
@@ -32,12 +50,12 @@ metadata:
   name: "nginx-service"
   namespace: "default"
   labels:
-    app: "nginx"
+    app: "nginx-1"
 spec:
   ports:
   - protocol: "TCP"
     port: 80
   selector:
-    app: "nginx"
+    app: "nginx-1"
   type: "LoadBalancer"
   loadBalancerIP: ""
