@@ -25,18 +25,19 @@ spec:
             memory: "256Mi"
             cpu: "500m"
 
-
-apiVersion: v1
-kind: Service
+---
+apiVersion: "v1"
+kind: "Service"
 metadata:
-  name: nginx-service
+  name: "nginx-service"
+  namespace: "default"
   labels:
-    app: nginx
+    app: "nginx"
 spec:
-  type: LoadBalancer
   ports:
-  - protocol: TCP
+  - protocol: "TCP"
     port: 80
-    targetPort: 80
   selector:
-    app: nginx
+    app: "nginx"
+  type: "LoadBalancer"
+  loadBalancerIP: ""
