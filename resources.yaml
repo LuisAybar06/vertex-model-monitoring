@@ -23,7 +23,7 @@ spec:
 apiVersion: "autoscaling/v2"
 kind: "HorizontalPodAutoscaler"
 metadata:
-  name: "nginx-1-hpa-ypna"
+  name: "nginx-1-hpa-x1hp"
   namespace: "default"
   labels:
     app: "nginx-1"
@@ -41,6 +41,7 @@ spec:
       target:
         type: "Utilization"
         averageUtilization: 80
+
 ---
 apiVersion: "v1"
 kind: "Service"
