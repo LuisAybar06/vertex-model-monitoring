@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: cd-v1
-      PROJECT_ID: groovy-form-424500-f2 
+      PROJECT_ID: ${{ secrets.GOOGLE_PROJECT }} 
     steps:
 
     - name: code checkout

@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: us-central1-docker.pkg.dev/groovy-form-424500-f2/images/nginx:latest
+        image: us-central1-docker.pkg.dev/trim-odyssey-390415/images/nginx:latest
         resources:
           requests:
             memory: "128Mi"
