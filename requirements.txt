@@ -9,6 +9,8 @@ fastapi
 uvicorn
 pandas
 joblib
+scikit-learn
+
 
 # PyYAML
 # pytz
