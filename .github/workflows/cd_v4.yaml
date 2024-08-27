@@ -41,4 +41,4 @@ jobs:
       - name: Execute notebook
         run: |
           source venv/bin/activate
-          papermill my_app/my_first_pipeline_s2_v1-1.ipynb my_app/output.ipynb -k venv
+          papermill my_app/pipeline_training_model.ipynb my_app/output.ipynb -k venv
