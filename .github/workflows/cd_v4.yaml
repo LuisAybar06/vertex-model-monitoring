@@ -1,4 +1,4 @@
-name: Deploy Terraform and Execute Notebook
+name: Deploy  and Execute Notebook
 
 on:
   push:
@@ -26,34 +26,19 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.0.0
-
-      - name: Initialize Terraform
+      - name: Install dependencies
         run: |
-          cd terraform_vertex
-          terraform init
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          pip install jupyter
 
-      - name: Apply Terraform
+      - name: Register Jupyter kernel
         run: |
-          cd terraform_vertex
-          terraform apply -auto-approve
+          source venv/bin/activate
+          python -m ipykernel install --user --name=venv
 
-      # - name: Install dependencies
-      #   run: |
-      #     python -m venv venv
-      #     source venv/bin/activate
-      #     pip install -r requirements.txt
-      #     pip install jupyter
-
-      # - name: Register Jupyter kernel
-      #   run: |
-      #     source venv/bin/activate
-      #     python -m ipykernel install --user --name=venv
-
-      # - name: Execute notebook
-      #   run: |
-      #     source venv/bin/activate
-      #     papermill my_app/pipeline_training_model.ipynb my_app/output.ipynb -k venv
+      - name: Execute notebook
+        run: |
+          source venv/bin/activate
+          papermill my_app/pipeline_training_model.ipynb my_app/output.ipynb -k venv
