@@ -6,25 +6,26 @@
 # Werkzeug==2.0.2
 
 #################### cd_v1.1.yaml #######################
-fastapi
-uvicorn
-pandas
-joblib
-python-multipart
-scikit-learn
+# fastapi
+# uvicorn
+# pandas
+# joblib
+# python-multipart
+# scikit-learn
 
-# PyYAML
-# pytz
-# fire
-# yq
-# nbconvert==6.4.5
-# jupyter-client==7.2.0
-# ipython
-# packaging
+#################### cd_v4.yaml #######################
+PyYAML
+pytz
+fire
+yq
+nbconvert==6.4.5
+jupyter-client==7.2.0
+ipython
+packaging
 
-# google-cloud-aiplatform==1.18.0
-# kfp==1.8.21
-# google-cloud-pipeline-components==1.0.24
-# google-cloud-storage
-# google-auth
-# papermill
+google-cloud-aiplatform==1.18.0
+kfp==1.8.21
+google-cloud-pipeline-components==1.0.24
+google-cloud-storage
+google-auth
+papermill
