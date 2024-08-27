@@ -9,7 +9,7 @@ fastapi
 uvicorn
 pandas
 joblib
-
+python-multipart
 
 # PyYAML
 # pytz
