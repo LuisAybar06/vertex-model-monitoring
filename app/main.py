@@ -18,9 +18,9 @@ def health_check():
 
 @app.post("/predict")
 async def predict_bancknote(file: UploadFile = File(...)):
-    classifier = load("linear_regression.joblib")
+    classifier = load("app/model/linear_regression.joblib")
     
-    features_df = pd.read_csv('selected_features.csv')
+    features_df = pd.read_csv('app/data/selected_features.csv')
     features = features_df['0'].to_list()
 
     contents = await file.read()
