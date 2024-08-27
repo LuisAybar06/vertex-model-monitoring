@@ -4,7 +4,7 @@ provider "google" {
   }
   
   resource "google_bigquery_dataset" "dataset" {
-    dataset_id = "my_dataset"
+    dataset_id = "laybarm"
     project    = var.project_id
     location   = var.region
   }

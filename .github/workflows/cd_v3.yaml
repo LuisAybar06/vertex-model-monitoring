@@ -26,7 +26,17 @@ jobs:
           terraform_version: 1.0.0
 
       - name: Initialize Terraform
-        run: terraform init
+        run: |
+          cd terraform
+          terraform init
 
       - name: Apply Terraform
-        run: terraform apply -auto-approve
+        run: |
+          cd terraform
+          terraform apply -auto-approve
+
+      # - name: Initialize Terraform
+      #   run: terraform init
+
+      # - name: Apply Terraform
+      #   run: terraform apply -auto-approve
