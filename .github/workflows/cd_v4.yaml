@@ -26,19 +26,34 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Install dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
-          pip install jupyter
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.0.0
 
-      - name: Register Jupyter kernel
+      - name: Initialize Terraform
         run: |
-          source venv/bin/activate
-          python -m ipykernel install --user --name=venv
+          cd terraform_vertex
+          terraform init
 
-      - name: Execute notebook
+      - name: Apply Terraform
         run: |
-          source venv/bin/activate
-          papermill my_app/pipeline_training_model.ipynb my_app/output.ipynb -k venv
+          cd terraform_vertex
+          terraform apply -auto-approve
+
+      # - name: Install dependencies
+      #   run: |
+      #     python -m venv venv
+      #     source venv/bin/activate
+      #     pip install -r requirements.txt
+      #     pip install jupyter
+
+      # - name: Register Jupyter kernel
+      #   run: |
+      #     source venv/bin/activate
+      #     python -m ipykernel install --user --name=venv
+
+      # - name: Execute notebook
+      #   run: |
+      #     source venv/bin/activate
+      #     papermill my_app/pipeline_training_model.ipynb my_app/output.ipynb -k venv
