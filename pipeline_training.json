@@ -1,0 +1,191 @@
+{
+  "pipelineSpec": {
+    "components": {
+      "comp-process-data": {
+        "executorLabel": "exec-process-data",
+        "inputDefinitions": {
+          "parameters": {
+            "features_table": {
+              "type": "STRING"
+            },
+            "project": {
+              "type": "STRING"
+            },
+            "source_x_train_table": {
+              "type": "STRING"
+            }
+          }
+        },
+        "outputDefinitions": {
+          "artifacts": {
+            "dataset": {
+              "artifactType": {
+                "schemaTitle": "system.Dataset",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          }
+        }
+      },
+      "comp-train-model": {
+        "executorLabel": "exec-train-model",
+        "inputDefinitions": {
+          "artifacts": {
+            "inputd": {
+              "artifactType": {
+                "schemaTitle": "system.Dataset",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          },
+          "parameters": {
+            "project": {
+              "type": "STRING"
+            },
+            "source_y_train_table": {
+              "type": "STRING"
+            }
+          }
+        }
+      }
+    },
+    "deploymentSpec": {
+      "executors": {
+        "exec-process-data": {
+          "container": {
+            "args": [
+              "--executor_input",
+              "{{$}}",
+              "--function_to_execute",
+              "process_data"
+            ],
+            "command": [
+              "sh",
+              "-c",
+              "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'google-cloud-bigquery' 'google-cloud-bigquery-storage' 'pandas' 'db-dtypes' 'pyarrow' 'kfp==1.8.21' && \"$0\" \"$@\"\n",
+              "sh",
+              "-ec",
+              "program_path=$(mktemp -d)\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\npython3 -m kfp.v2.components.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+              "\nimport kfp\nfrom kfp.v2 import dsl\nfrom kfp.v2.dsl import *\nfrom typing import *\n\ndef process_data(\n    project: str,\n    source_x_train_table: str,\n    features_table: str,\n    dataset: Output[Dataset],\n):\n\n    import sys\n    from google.cloud import bigquery\n    import pandas as pd\n    import pyarrow.parquet as pq\n\n    client = bigquery.Client(project=project)\n\n\n    X_train = client.query(\n    '''SELECT * FROM `{dsource_table}`\n        '''.format(dsource_table=source_x_train_table)).to_dataframe()\n\n    features = client.query(\n    '''SELECT * FROM `{dsource_table}`\n        '''.format(dsource_table=features_table))\n\n    df = features.to_dataframe()\n\n    # Seleccionar caracter\u00edsticas\n    features = df[\"string_field_0\"].tolist()\n\n    X_train = X_train[features]\n\n    X_train.to_parquet(f'{dataset.path}.parquet',engine='pyarrow', index=False)\n\n"
+            ],
+            "image": "python:3.7"
+          }
+        },
+        "exec-train-model": {
+          "container": {
+            "args": [
+              "--executor_input",
+              "{{$}}",
+              "--function_to_execute",
+              "train_model"
+            ],
+            "command": [
+              "sh",
+              "-c",
+              "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'google-cloud-bigquery' 'google-cloud-bigquery-storage' 'pandas' 'scikit-learn' 'joblib' 'db-dtypes' 'google-cloud-aiplatform==1.18.0' 'kfp==1.8.21' && \"$0\" \"$@\"\n",
+              "sh",
+              "-ec",
+              "program_path=$(mktemp -d)\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\npython3 -m kfp.v2.components.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+              "\nimport kfp\nfrom kfp.v2 import dsl\nfrom kfp.v2.dsl import *\nfrom typing import *\n\ndef train_model(\n    project: str,\n    source_y_train_table: str,\n    inputd: Input[Dataset],\n):\n\n    import sys\n    from google.cloud import bigquery\n    from google.cloud import storage\n    import pandas as pd\n    from sklearn.linear_model import Lasso\n    import pandas as pd\n    import joblib\n    from google.cloud import aiplatform\n\n    client = bigquery.Client(project=project)\n\n\n    Y_train = client.query(\n    '''SELECT * FROM `{dsource_table}`\n        '''.format(dsource_table=source_y_train_table)).to_dataframe()\n\n\n    # Leer datos de Parquet del conjunto de datos de entrada   \n    X_train = pd.read_parquet(f'{inputd.path}.parquet')\n\n\n    # Configurar el modelo\n    lin_model = Lasso(alpha=0.001, random_state=0)\n\n    # Train model \n    lin_model.fit(X_train, Y_train)\n\n    model_filename = 'lasso_model.joblib'\n    joblib.dump(lin_model, model_filename)\n\n\n    # Upload the model to GCS\n    storage_client = storage.Client(project=project)\n    bucket_name = \"vertex_mlops\"\n    destination_blob_name = \"demo/data/model/model.joblib\"\n    bucket = storage_client.bucket(bucket_name)\n    blob = bucket.blob(destination_blob_name)\n    blob.upload_from_filename(model_filename)\n\n    model = aiplatform.Model.upload(\n        display_name=\"linear_regression\",\n        artifact_uri=\"gs://vertex_mlops/demo/data/model\",\n        serving_container_image_uri='us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest'\n    )\n\n"
+            ],
+            "image": "python:3.7"
+          }
+        }
+      }
+    },
+    "pipelineInfo": {
+      "name": "intro"
+    },
+    "root": {
+      "dag": {
+        "tasks": {
+          "process-data": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-process-data"
+            },
+            "inputs": {
+              "parameters": {
+                "features_table": {
+                  "componentInputParameter": "features_table"
+                },
+                "project": {
+                  "componentInputParameter": "project"
+                },
+                "source_x_train_table": {
+                  "componentInputParameter": "source_x_train_table"
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "GET_DATA"
+            }
+          },
+          "train-model": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-train-model"
+            },
+            "dependentTasks": [
+              "process-data"
+            ],
+            "inputs": {
+              "artifacts": {
+                "inputd": {
+                  "taskOutputArtifact": {
+                    "outputArtifactKey": "dataset",
+                    "producerTask": "process-data"
+                  }
+                }
+              },
+              "parameters": {
+                "project": {
+                  "componentInputParameter": "project"
+                },
+                "source_y_train_table": {
+                  "componentInputParameter": "source_y_train_table"
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "TRAIN_MODEL"
+            }
+          }
+        }
+      },
+      "inputDefinitions": {
+        "parameters": {
+          "features_table": {
+            "type": "STRING"
+          },
+          "gcp_region": {
+            "type": "STRING"
+          },
+          "project": {
+            "type": "STRING"
+          },
+          "source_x_train_table": {
+            "type": "STRING"
+          },
+          "source_y_train_table": {
+            "type": "STRING"
+          }
+        }
+      }
+    },
+    "schemaVersion": "2.0.0",
+    "sdkVersion": "kfp-1.8.21"
+  },
+  "runtimeConfig": {
+    "gcsOutputDirectory": "gs://vertex_mlops/demo",
+    "parameters": {
+      "gcp_region": {
+        "stringValue": "us-central1"
+      }
+    }
+  }
+}
